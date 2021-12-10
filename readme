@@ -1,0 +1,172 @@
+About API
+
+This Rest API can be used for the PIX payment gatway integration. Their are two APIs and  1 for the token create API.  
+
+Login API
+===================================
+This take email ID  and password and  return auth token which will be used in the other requests
+
+Curl Format
+
+curl --location --request POST 'https://api.pix.exchange/api/auth/login?email=[email]&password=[password]'
+
+
+
+Generate QR Code 
+===================================
+
+
+This qr code shell be presented to user and ask him to make payment. This API Take 2 parameters amount and referece and for the authoraization it take bearer token in the header
+
+
+PHP CURL FORMAT
+
+ 
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://api.pix.exchange/api/auth/v1/getQRCode',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{"amount" : 50,"reference":"Test reference"}',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer [TOKEN]',
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response; 
+
+
+RESPONSE
+
+{
+    "status": 200,
+    "result": {
+        "address": "[BASE 64 DATA OF THE QR CODE"
+    },
+    "transactionId": "[ TRANSACTION ID GENERATED]",
+    "amount": 50,
+    "reference": "Test reference"
+}
+
+
+
+
+Check transaction Status
+===================================
+
+This API return the status of any transaction  ID. A transaction id look like 168CB404-31DD-5E73-7BC4-4CDEDA85C819
+
+PHP CURL FORMAT
+
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://api.pix.exchange/api/auth/v1/checkTransactions',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{"transactionId" : "[TRANSACTION ID]"}',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer [AUTH TOKEN]',
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+RESPONSE
+{
+    "transactions": [
+        {
+            "accountHolderId": "AFDEF7E2-741A-FB7A-A0E1-DCAC9FF82B77",
+            "accountId": "A5440C11-00AD-A181-8CBA-854BEFD1C302",
+            "transactionId": "5ACE9E74-924A-FEB6-ED14-CA920D4A823D",
+            "endToEndId": "E18236120202112091731s15759af775",
+            "transactionDate": "2021-12-09T14:23:15.96-03:00",
+            "transactionType": "PaymentInstantPayment",
+            "transactionStatus": "APPROVED",
+            "totalAmount": 5,
+            "paidAmount": 5,
+            "instantPayment": {
+                "sender": {
+                    "name": "ISAIAS RODRIGUES SANTANA 05418082736",
+                    "taxIdentifier": {
+                        "taxId": "30098174000108",
+                        "country": "BRA",
+                        "taxIdMasked": "30.***.***/****-08"
+                    },
+                    "account": {
+                        "branch": "1",
+                        "account": "365535896",
+                        "accountType": "CC"
+                    },
+                    "psp": {
+                        "id": "18236120",
+                        "name": "NU PAGAMENTOS - IP",
+                        "country": "BRA"
+                    }
+                },
+                "recipient": {
+                    "alias": "b7c5565b-3c33-4fee-83ea-0142baab3619",
+                    "name": "Isaias Rodrigues Santana",
+                    "taxIdentifier": {
+                        "taxId": "30098174000108",
+                        "country": "BRA",
+                        "taxIdMasked": "30.***.***/****-08"
+                    },
+                    "account": {
+                        "branch": "178",
+                        "account": "328480",
+                        "accountType": "CC"
+                    },
+                    "psp": {
+                        "id": "23114447",
+                        "name": "FLAGSHIP IP LTDA",
+                        "country": "BRA"
+                    }
+                },
+                "endToEndId": "E18236120202112091731s15759af775"
+            }
+        }
+    ]
+}
+
+
+
+OR 
+
+{
+    "transactions": [
+        {
+            "accountHolderId": "AFDEF7E2-741A-FB7A-A0E1-DCAC9FF82B77",
+            "accountId": "A5440C11-00AD-A181-8CBA-854BEFD1C302",
+            "transactionId": "168CB404-31DD-5E73-7BC4-4CDEDA85C819",
+            "transactionDate": "2021-12-10T04:08:42.203-03:00",
+            "transactionType": "PaymentInstantPayment",
+            "transactionStatus": "CREATED",
+            "totalAmount": 50
+        }
+    ]
+}
+
+
+
